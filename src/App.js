@@ -5,13 +5,14 @@ import Nav from "./components/Nav";
 
 function App() {
   return <div>
+    <Nav/>
     <Switch>
       <Route exact path={"/"}>This is home page</Route>
       <Route exact path={"/1st"}>This is 1stw  page</Route>
       <Route exact path={"/2nd"}>This is 2ndw page</Route>
-      <Route >This is 2ndw page</Route>
+      <Route >Not Found</Route>
     </Switch>
-    <Nav/>
+  
   </div>
 }
 
