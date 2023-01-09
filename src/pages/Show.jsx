@@ -1,48 +1,67 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { apiGet } from "../misc/config";
+import React, { useEffect, useReducer } from 'react';
+import { useParams } from 'react-router-dom';
+import { apiGet } from '../misc/config';
+
+const reducer = (prevState, action) => {
+  switch (action.type) {
+    case 'FETCH_SUCCESS': {
+      return { isLoading: false, error: null, show: action.show };
+    }
+
+    case 'FETCH_FAILED': {
+      return { ...prevState, isLoading: false, error: action.error };
+    }
+
+    default:
+      return prevState;
+  }
+};
+
+const initialState = {
+  show: null,
+  isLoading: true,
+  error: null,
+};
 
 const Show = () => {
   const { id } = useParams();
-  const [show, setShow] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const [{ show, isLoading, error }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
 
   useEffect(() => {
-
     let isMounted = true;
 
     apiGet(`/shows/${id}?embed[]=seasons&embed[]=cast`)
-      .then((results) => {
-        setTimeout(() => {
-          if(isMounted){
-            setShow(results);
-            setIsLoading(false);
-           }
-        } , 2000);
+      .then(results => {
+        if (isMounted) {
+          dispatch({ type: 'FETCH_SUCCESS', show: results });
+        }
       })
       .catch(err => {
-        if (isMounted){
-          
-          setError(err.message);
-          setIsLoading(false);
+        if (isMounted) {
+          dispatch({ type: 'FETCH_FAILED', error: err.message });
         }
       });
-      return () => {
-        isMounted = false; 
-      }
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
-  console.log(show);
+  console.log('show', show);
+
   if (isLoading) {
-    return <div>Data is beiong Loaded</div>;
+    return <div>Data is being loaded</div>;
   }
 
   if (error) {
-    return <div>Error Occured :: {error}</div>;
+    return <div>Error occured: {error}</div>;
   }
 
-  return <div>This is Show page</div>;
+  return <div>this is show page</div>;
 };
 
 export default Show;
